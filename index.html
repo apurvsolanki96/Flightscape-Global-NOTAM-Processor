@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flightscape AI NOTAM Processor - Global Feed</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-container">
+                        <div class="logo">F</div>
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="brand-title">Flightscape</h1>
+                        <p class="brand-subtitle">Global NOTAM Processor</p>
+                    </div>
+                </div>
+                <div class="feature-badge">
+                    <span class="badge-live">●</span>
+                    Real-Time Global Feed
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Data Source Status Bar -->
+    <section class="data-sources-status">
+        <div class="container">
+            <h3>NOTAM Data Sources Status</h3>
+            <div class="sources-grid">
+                <div class="source-card" data-source="nasa">
+                    <div class="source-header">
+                        <span class="source-name">NASA NOTAM API</span>
+                        <span class="status-indicator connecting" id="nasa-status">Connecting...</span>
+                    </div>
+                    <div class="source-details">
+                        <span class="coverage">Global Coverage</span>
+                        <span class="auth">No Auth Required</span>
+                    </div>
+                </div>
+                <div class="source-card" data-source="faa">
+                    <div class="source-header">
+                        <span class="source-name">FAA SWIM Portal</span>
+                        <span class="status-indicator connecting" id="faa-status">Connecting...</span>
+                    </div>
+                    <div class="source-details">
+                        <span class="coverage">US & International</span>
+                        <span class="auth">Auth Required</span>
+                    </div>
+                </div>
+                <div class="source-card" data-source="icao">
+                    <div class="source-header">
+                        <span class="source-name">ICAO API</span>
+                        <span class="status-indicator connecting" id="icao-status">Connecting...</span>
+                    </div>
+                    <div class="source-details">
+                        <span class="coverage">Global Coverage</span>
+                        <span class="auth">Free Tier: 100 calls</span>
+                    </div>
+                </div>
+                <div class="source-card" data-source="notamify">
+                    <div class="source-header">
+                        <span class="source-name">Notamify</span>
+                        <span class="status-indicator connecting" id="notamify-status">Connecting...</span>
+                    </div>
+                    <div class="source-details">
+                        <span class="coverage">Global Coverage</span>
+                        <span class="auth">Free Tier: 20 credits</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Global NOTAM Feed Configuration -->
+            <section class="feed-section">
+                <div class="card">
+                    <div class="card__header">
+                        <h2>Global NOTAM Feed Configuration</h2>
+                        <div class="connection-summary">
+                            <span id="connectionCount">0</span> of 4 sources connected
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label class="form-label">ICAO Codes (comma-separated)</label>
+                                <input type="text" id="icaoCodes" class="form-control" placeholder="KJFK, EGLL, EDDF, RJTT, OMDB, YSSY" value="">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="form-label">World Region</label>
+                                <select id="worldRegion" class="form-control">
+                                    <option value="">Select Region</option>
+                                    <option value="North America">North America</option>
+                                    <option value="Europe">Europe</option>
+                                    <option value="Asia-Pacific">Asia-Pacific</option>
+                                    <option value="Middle East">Middle East</option>
+                                    <option value="Global">Global Coverage</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="form-label">Date Range</label>
+                                <div class="date-range">
+                                    <input type="date" id="startDate" class="form-control">
+                                    <span>to</span>
+                                    <input type="date" id="endDate" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="form-label">Risk Level Filter</label>
+                                <select id="riskFilter" class="form-control">
+                                    <option value="all">All Risk Levels</option>
+                                    <option value="high">High Risk Only</option>
+                                    <option value="medium">Medium Risk Only</option>
+                                    <option value="low">Low Risk Only</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="form-label">Category Filters</label>
+                            <div class="category-filters">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="runway" checked> Runway Operations
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="airspace" checked> Airspace Restrictions
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="navigation" checked> Navigation Aids
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="weather" checked> Weather Conditions
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="military" checked> Military Operations
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="obstacles" checked> Obstacles
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="controls">
+                            <div class="control-options">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="autoRefresh"> Auto-refresh (5 min)
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="enableAI" checked> Enable AI Processing
+                                </label>
+                            </div>
+                            <button id="fetchNotams" class="btn btn--primary">
+                                <span class="btn-text">Fetch Global NOTAMs</span>
+                                <div class="loading-spinner hidden"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section">
+                <div class="card">
+                    <div class="card__header">
+                        <div class="results-header">
+                            <h2>NOTAM Analysis Results</h2>
+                            <div class="results-stats">
+                                <div class="stats-item">
+                                    <span id="notamCount">0 NOTAMs</span>
+                                    <span class="stats-label">Total</span>
+                                </div>
+                                <div class="stats-item">
+                                    <span id="highRiskCount">0</span>
+                                    <span class="stats-label">High Risk</span>
+                                </div>
+                                <div class="stats-item">
+                                    <span id="lastUpdate">Never</span>
+                                    <span class="stats-label">Last Update</span>
+                                </div>
+                                <div class="export-controls">
+                                    <button id="copyResults" class="btn btn--sm btn--outline">Copy</button>
+                                    <button id="exportResults" class="btn btn--sm btn--outline">Export CSV</button>
+                                    <button id="printResults" class="btn btn--sm btn--outline">Print</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <!-- Tab Navigation -->
+                        <div class="tab-nav">
+                            <button class="tab-btn active" data-tab="global-feed">Global Feed</button>
+                            <button class="tab-btn" data-tab="risk-assessment">Risk Assessment</button>
+                            <button class="tab-btn" data-tab="ai-summary">AI Summary</button>
+                            <button class="tab-btn" data-tab="route-analysis">Route Analysis</button>
+                            <button class="tab-btn" data-tab="raw-notams">Raw Data</button>
+                        </div>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content">
+                            <!-- Global Feed Tab -->
+                            <div id="global-feed" class="tab-pane active">
+                                <div class="feed-controls">
+                                    <input type="text" id="globalSearch" class="form-control" placeholder="Search NOTAMs...">
+                                    <div class="feed-filters">
+                                        <select id="sourceFilter" class="form-control">
+                                            <option value="all">All Sources</option>
+                                            <option value="nasa">NASA API</option>
+                                            <option value="faa">FAA SWIM</option>
+                                            <option value="icao">ICAO API</option>
+                                            <option value="notamify">Notamify</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="globalFeedResults" class="feed-results">
+                                    <p class="no-data">No NOTAM data available. Configure filters and fetch NOTAMs to see global feed.</p>
+                                </div>
+                            </div>
+
+                            <!-- Risk Assessment Tab -->
+                            <div id="risk-assessment" class="tab-pane">
+                                <div class="risk-legend">
+                                    <div class="risk-item high">
+                                        <span class="risk-indicator"></span>
+                                        High Risk - Critical to flight operations
+                                    </div>
+                                    <div class="risk-item medium">
+                                        <span class="risk-indicator"></span>
+                                        Medium Risk - Significant operational impact
+                                    </div>
+                                    <div class="risk-item low">
+                                        <span class="risk-indicator"></span>
+                                        Low Risk - Minor operational considerations
+                                    </div>
+                                </div>
+                                <div id="riskResults" class="risk-results">
+                                    <p class="no-data">No risk assessment data available. Fetch NOTAMs to see risk analysis.</p>
+                                </div>
+                            </div>
+
+                            <!-- AI Summary Tab -->
+                            <div id="ai-summary" class="tab-pane">
+                                <div class="ai-header">
+                                    <h4>AI-Generated Flight Planning Insights</h4>
+                                    <div class="ai-status">
+                                        <span class="ai-indicator" id="aiStatus">AI Ready</span>
+                                    </div>
+                                </div>
+                                <div id="aiResults" class="ai-results">
+                                    <p class="no-data">No AI summary available. Fetch NOTAMs with AI processing enabled to see insights.</p>
+                                </div>
+                            </div>
+
+                            <!-- Route Analysis Tab -->
+                            <div id="route-analysis" class="tab-pane">
+                                <div class="search-bar">
+                                    <input type="text" id="routeSearch" class="form-control" placeholder="Search routes and airways...">
+                                </div>
+                                <div id="routeResults" class="route-results">
+                                    <p class="no-data">No route data available. Fetch NOTAMs to see route analysis.</p>
+                                </div>
+                            </div>
+
+                            <!-- Raw NOTAMs Tab -->
+                            <div id="raw-notams" class="tab-pane">
+                                <div class="raw-controls">
+                                    <input type="text" id="rawSearch" class="form-control" placeholder="Search raw NOTAM text...">
+                                    <select id="formatSelect" class="form-control">
+                                        <option value="formatted">Formatted View</option>
+                                        <option value="raw">Raw Text</option>
+                                    </select>
+                                </div>
+                                <div id="rawResults" class="raw-results">
+                                    <p class="no-data">No NOTAM data available. Fetch NOTAMs to see raw data.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Access Section -->
+            <section class="quick-access-section">
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Quick Access & Bookmarks</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="quick-access-grid">
+                            <div class="bookmarks-section">
+                                <h4>Major Airports</h4>
+                                <div class="bookmarks-grid">
+                                    <div class="bookmark-item" data-icao="KJFK" data-region="North America">
+                                        <span class="bookmark-code">KJFK</span>
+                                        <span class="bookmark-name">New York JFK</span>
+                                    </div>
+                                    <div class="bookmark-item" data-icao="EGLL" data-region="Europe">
+                                        <span class="bookmark-code">EGLL</span>
+                                        <span class="bookmark-name">London Heathrow</span>
+                                    </div>
+                                    <div class="bookmark-item" data-icao="EDDF" data-region="Europe">
+                                        <span class="bookmark-code">EDDF</span>
+                                        <span class="bookmark-name">Frankfurt</span>
+                                    </div>
+                                    <div class="bookmark-item" data-icao="RJTT" data-region="Asia-Pacific">
+                                        <span class="bookmark-code">RJTT</span>
+                                        <span class="bookmark-name">Tokyo Haneda</span>
+                                    </div>
+                                    <div class="bookmark-item" data-icao="OMDB" data-region="Middle East">
+                                        <span class="bookmark-code">OMDB</span>
+                                        <span class="bookmark-name">Dubai Intl</span>
+                                    </div>
+                                    <div class="bookmark-item" data-icao="YSSY" data-region="Asia-Pacific">
+                                        <span class="bookmark-code">YSSY</span>
+                                        <span class="bookmark-name">Sydney</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="regions-section">
+                                <h4>Quick Regions</h4>
+                                <div class="regions-grid">
+                                    <div class="region-item" data-region="Global">
+                                        Global Coverage
+                                    </div>
+                                    <div class="region-item" data-region="North America">
+                                        North America
+                                    </div>
+                                    <div class="region-item" data-region="Europe">
+                                        Europe
+                                    </div>
+                                    <div class="region-item" data-region="Asia-Pacific">
+                                        Asia-Pacific
+                                    </div>
+                                    <div class="region-item" data-region="Middle East">
+                                        Middle East
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>&copy; 2025 Flightscape AI. Powered by CAE Aviation Technologies.</p>
+                    <p>Professional NOTAM Processing System v3.0.0</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#" target="_blank">API Documentation</a>
+                    <a href="#" target="_blank">User Guide</a>
+                    <a href="#" target="_blank">Support</a>
+                    <a href="#" target="_blank">Aviation Resources</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Progress Modal -->
+    <div id="progressModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Processing Global NOTAMs</h3>
+            <div class="progress-steps">
+                <div class="step-item" id="step1">
+                    <div class="step-indicator"></div>
+                    <span>Connecting to data sources</span>
+                </div>
+                <div class="step-item" id="step2">
+                    <div class="step-indicator"></div>
+                    <span>Fetching NOTAM data</span>
+                </div>
+                <div class="step-item" id="step3">
+                    <div class="step-indicator"></div>
+                    <span>Processing and analyzing</span>
+                </div>
+                <div class="step-item" id="step4">
+                    <div class="step-indicator"></div>
+                    <span>Generating AI insights</span>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <p id="progressText">Initializing connection...</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
